@@ -1,0 +1,81 @@
+---
+
+- hosts: citrix_adc
+
+  vars:
+    max_clients: 5
+
+  remote_user: root
+  gather_facts: False
+  collections:
+    - citrix.adc
+
+  tasks:
+    - name: Add SNIP
+      delegate_to: localhost
+      citrix_adc_nsip:
+        nsip: "{{ nsip }}"
+        nitro_user: "{{ nitro_user }}"
+        nitro_pass: "{{ new_password }}"
+        validate_certs: no
+
+        state: present
+
+        ipaddress: "{{ snip }}"
+        netmask: 255.255.255.0
+        type: SNIP
+        snmp: disabled
+
+    - name: service-http-1
+      delegate_to: localhost
+      citrix_adc_service:
+        nsip: "{{ nsip }}"
+        nitro_user: "{{ nitro_user }}"
+        nitro_pass: "{{ new_password }}"
+        validate_certs: "{{ validate_certs }}"
+
+        state: present
+
+        name: service-http-1
+        servicetype: HTTP
+        ipaddress: "{{ server1_ip }}"
+        port: 80
+
+    - name: service-http-2
+      delegate_to: localhost
+      citrix_adc_service:
+        nsip: "{{ nsip }}"
+        nitro_user: "{{ nitro_user }}"
+        nitro_pass: "{{ new_password }}"
+        validate_certs: "{{ validate_certs }}"
+
+        state: present
+
+        name: service-http-2
+        servicetype: HTTP
+        ipaddress: "{{ server2_ip }}"
+        port: 80
+
+    - name: lb vserver 1
+      delegate_to: localhost
+      citrix_adc_lb_vserver:
+        nsip: "{{ nsip }}"
+        nitro_user: "{{ nitro_user }}"
+        nitro_pass: "{{ new_password }}"
+        validate_certs: "{{ validate_certs }}"
+
+        state: present
+
+        name: lb-vserver-1
+        servicetype: HTTP
+        timeout: 12
+        ipv46: "{{ vip_ip }}"
+        port: 80
+        lbmethod: ROUNDROBIN
+        servicebindings:
+            - servicename: service-http-1
+              weight: 50
+            - servicename: service-http-2
+              weight: 50
+        disabled: no
+
