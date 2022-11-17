@@ -31,3 +31,9 @@ Next, we will install citrix-adc ansible modules from ansible-galaxy hub by runn
 ```bash
 ansible-galaxy collection install git+https://github.com/citrix/citrix-adc-ansible-modules.git#/ansible-collections/adc
 ```
+---
+
+#### Ansible Galaxy Offline Install
+```bash
+ansible-galaxy collection install xxxx.tar.gz
+```
